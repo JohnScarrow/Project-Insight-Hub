@@ -65,10 +65,42 @@ const routes: FastifyPluginAsync = async (server) => {
 
     const { password: _, ...userWithoutPassword } = user
 
+  // Create admin user (protected endpoint - only for initial setup)
+  server.post('/create-admin', async (request, reply) => {
+    const { email, password, name } = request.body as any
+
+    if (!email || !password) {
+      reply.code(400)
+      return { error: 'Email and password required' }
+    }
+
+    // Check if user already exists
+    const existingUser = await server.prisma.user.findUnique({ where: { email } })
+    
+    if (existingUser) {
+      reply.code(409)
+      return { error: 'User already exists' }
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Create admin user
+    const user = await server.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: name || null,
+        defaultRole: 'Admin'
+      }
+    })
+
+    const { password: _, ...userWithoutPassword } = user
+
     reply.code(201)
     return {
       user: userWithoutPassword,
-      message: 'User created successfully'
+      message: 'Admin user created successfully'
     }
   })
 
