@@ -38,9 +38,16 @@ export default function Login() {
     loginMutation.mutate({ email, password });
   };
 
-  const handleGuestLogin = () => {
-    setEmail('guest@projecthub.com');
-    setPassword('GuestView123!');
+  const handleGuestLogin = async () => {
+    try {
+      setError('');
+      // Auto-login guest without password for demo purposes
+      const result = await authApi.login('guest@projecthub.com', 'GuestView123!');
+      login(result.user);
+      navigate('/');
+    } catch (error: any) {
+      setError(error.message || 'Guest login failed');
+    }
   };
 
   const handleAdminLogin = () => {
@@ -113,14 +120,15 @@ export default function Login() {
               variant="outline"
               className="w-full"
               onClick={handleGuestLogin}
+              disabled={loginMutation.isPending}
             >
-              Login as Guest (View Only)
+              Login as Guest (View Only - No Password)
             </Button>
           </div>
 
           <div className="text-xs text-muted-foreground text-center">
             <p><strong>Admin:</strong> admin@projecthub.com / AdminPass123!</p>
-            <p><strong>Guest:</strong> guest@projecthub.com / GuestView123!</p>
+            <p><strong>Guest:</strong> One-click login (no password needed)</p>
           </div>
         </CardContent>
       </Card>

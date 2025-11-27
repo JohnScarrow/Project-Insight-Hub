@@ -117,7 +117,7 @@ For demonstration purposes, the following accounts are available:
 
 #### **Guest Viewer Account**
 - **Email**: `guest@projecthub.com`
-- **Password**: `GuestView123!`
+- **Password**: One-click login (no password required)
 - **Role**: Viewer (read-only)
 
 #### **Sample Account** (Legacy)
@@ -136,7 +136,9 @@ For demonstration purposes, the following accounts are available:
 
 2. **Start the development servers** (see Local Development section below)
 
-3. **Login with any of the demo accounts above**
+3. **Login with demo accounts:**
+   - **Admin**: Enter `admin@projecthub.com` / `AdminPass123!`
+   - **Guest**: Click "Login as Guest" button (passwordless)
 
 ### 🔧 **Creating Additional Admin Users**
 
