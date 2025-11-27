@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String?
+  defaultRole String   @default("Viewer")
+  createdAt   DateTime @default(now())
+  projects    Project[]
+  rbac        RBAC[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  tasks       Task[]
+  notes       Note[]
+  docs        Doc[]
+  rbac        RBAC[]
+  createdAt   DateTime @default(now())
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Doc {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  title     String
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model Connection {
+  id        String   @id @default(cuid())
+  projectId String?
+  name      String
+  type      String
+  config    String
+  createdAt DateTime @default(now())
+}
+
+model Cost {
+  id        String   @id @default(cuid())
+  projectId String
+  service   String
+  amount    Float
+  period    String
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id         String   @id @default(cuid())
+  projectId  String
+  parentId   String?
+  title      String
+  completed  Boolean  @default(false)
+  parent     Task?    @relation("task_children", fields: [parentId], references: [id])
+  children   Task[]   @relation("task_children")
+  project    Project  @relation(fields: [projectId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model TimeLog {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  taskId    String?
+  duration  Int
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model RBAC {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  role      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, projectId])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  resource    String
+  resourceId  String?
+  projectId   String?
+  details     String?
+  ipAddress   String?
+  userAgent   String?
+  success     Boolean  @default(true)
+  errorMessage String?
+  createdAt   DateTime @default(now())
+}
