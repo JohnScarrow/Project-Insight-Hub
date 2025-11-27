@@ -65,6 +65,13 @@ const routes: FastifyPluginAsync = async (server) => {
 
     const { password: _, ...userWithoutPassword } = user
 
+    reply.code(201)
+    return {
+      user: userWithoutPassword,
+      message: 'User created successfully'
+    }
+  })
+
   // Create admin user (protected endpoint - only for initial setup)
   server.post('/create-admin', async (request, reply) => {
     const { email, password, name } = request.body as any
