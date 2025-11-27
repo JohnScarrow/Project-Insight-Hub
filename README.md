@@ -136,9 +136,10 @@ For demonstration purposes, the following accounts are available:
 
 2. **Start the development servers** (see Local Development section below)
 
-3. **Login with demo accounts:**
-   - **Admin**: Enter `admin@projecthub.com` / `AdminPass123!`
-   - **Guest**: Click "Login as Guest" button (passwordless)
+3. **Choose your login method:**
+   - **Guest**: Click "Login as Guest" for instant read-only access
+   - **Admin**: Click "Login as Admin" then enter password
+   - **Sample**: Click "Login as Sample User" then enter password
 
 ### 🔧 **Creating Additional Admin Users**
 

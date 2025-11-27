@@ -41,7 +41,7 @@ export default function Login() {
   const handleGuestLogin = async () => {
     try {
       setError('');
-      // Auto-login guest without password for demo purposes
+      // Auto-login guest without requiring password entry
       const result = await authApi.login('guest@projecthub.com', 'GuestView123!');
       login(result.user);
       navigate('/');
@@ -52,7 +52,20 @@ export default function Login() {
 
   const handleAdminLogin = () => {
     setEmail('admin@projecthub.com');
-    setPassword('AdminPass123!');
+    setPassword('');
+    // Focus on password field for admin
+    setTimeout(() => {
+      document.getElementById('password')?.focus();
+    }, 100);
+  };
+
+  const handleSampleLogin = () => {
+    setEmail('jdeegan@gainclarity.com');
+    setPassword('');
+    // Focus on password field for sample user
+    setTimeout(() => {
+      document.getElementById('password')?.focus();
+    }, 100);
   };
 
   return (
@@ -112,23 +125,31 @@ export default function Login() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={handleAdminLogin}
+              onClick={handleGuestLogin}
+              disabled={loginMutation.isPending}
             >
-              Login as Admin (Full Access)
+              👁️ Login as Guest (View Only - Instant Access)
             </Button>
             <Button
               variant="outline"
               className="w-full"
-              onClick={handleGuestLogin}
-              disabled={loginMutation.isPending}
+              onClick={handleAdminLogin}
             >
-              Login as Guest (View Only - No Password)
+              👑 Login as Admin (Requires Password)
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleSampleLogin}
+            >
+              🔧 Login as Sample User (Requires Password)
             </Button>
           </div>
 
           <div className="text-xs text-muted-foreground text-center">
             <p><strong>Admin:</strong> admin@projecthub.com / AdminPass123!</p>
-            <p><strong>Guest:</strong> One-click login (no password needed)</p>
+            <p><strong>Sample:</strong> jdeegan@gainclarity.com / password</p>
+            <p><strong>Guest:</strong> One-click instant access</p>
           </div>
         </CardContent>
       </Card>
