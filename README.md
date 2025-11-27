@@ -77,7 +77,7 @@ npm run dev
 
 ### Features
 - ✅ User authentication & authorization
-- ✅ Role-based access control (Owner, Editor, Viewer)
+- ✅ Role-based access control (Admin, Editor, Viewer)
 - ✅ Project management
 - ✅ Task tracking with parent/child relationships
 - ✅ Time logging
@@ -85,6 +85,68 @@ npm run dev
 - ✅ Documentation management
 - ✅ Audit logging
 - ✅ Notes and connections tracking
+
+## 🔐 Authentication & User Roles
+
+The application includes role-based access control (RBAC) with three user roles:
+
+### 👑 **Admin Users**
+- **Full access** to all features
+- Can create, edit, and delete projects
+- Can manage user roles and permissions
+- Can view audit logs
+
+### ✏️ **Editor Users**
+- Can create and edit project content
+- Can log time and manage tasks
+- Cannot delete projects or manage users
+
+### 👁️ **Viewer Users** (Guest Access)
+- **Read-only access** to projects
+- Can view all project information
+- Cannot make any changes
+
+### 🎯 **Demo Accounts**
+
+For demonstration purposes, the following accounts are available:
+
+#### **Admin Account**
+- **Email**: `admin@projecthub.com`
+- **Password**: `AdminPass123!`
+- **Role**: Admin (full access)
+
+#### **Guest Viewer Account**
+- **Email**: `guest@projecthub.com`
+- **Password**: `GuestView123!`
+- **Role**: Viewer (read-only)
+
+#### **Sample Account** (Legacy)
+- **Email**: `jdeegan@gainclarity.com`
+- **Password**: `password`
+- **Role**: Admin
+
+### 🚀 **Getting Started with Authentication**
+
+1. **Run the database migrations and seed:**
+   ```bash
+   cd server
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
+
+2. **Start the development servers** (see Local Development section below)
+
+3. **Login with any of the demo accounts above**
+
+### 🔧 **Creating Additional Admin Users**
+
+To create additional admin users programmatically:
+
+```bash
+curl -X POST http://localhost:4000/api/auth/create-admin \
+  -H "Content-Type: application/json" \
+  -d '{"email":"your-admin@example.com","password":"SecurePass123!","name":"Your Name"}'
+```
 
 ## 🚀 Deployment
 
