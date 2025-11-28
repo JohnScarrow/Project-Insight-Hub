@@ -72,3 +72,5 @@ dev.db
 # Deployment/local platform folders
 .vercel/
 .netlify/
+.vercel
+.env*.local

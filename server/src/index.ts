@@ -13,6 +13,7 @@ import authRoutes from './routes/auth'
 import usersRoutes from './routes/users'
 import rbacRoutes from './routes/rbac'
 import auditLogsRoutes from './routes/auditlogs'
+import authPlugin from './middleware/auth'
 
 dotenv.config()
 
@@ -26,6 +27,8 @@ export async function buildServer() {
   })
 
   await server.register(prismaPlugin)
+  // Register auth middleware (routes opt-in via config.auth flag)
+  await server.register(authPlugin)
 
   // Health check endpoint for monitoring and deployment
   server.get('/health', async (request, reply) => {

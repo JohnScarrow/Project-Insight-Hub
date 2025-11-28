@@ -20,7 +20,7 @@ export default function Login() {
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       authApi.login(email, password),
     onSuccess: (data) => {
-      login(data.user);
+      login(data.user, data.token);
       navigate('/');
     },
     onError: (error: Error) => {
@@ -43,7 +43,7 @@ export default function Login() {
       setError('');
       // Auto-login guest without requiring password entry
       const result = await authApi.login('guest@projecthub.com', 'GuestView123!');
-      login(result.user);
+      login(result.user, result.token);
       navigate('/');
     } catch (error: any) {
       setError(error.message || 'Guest login failed');

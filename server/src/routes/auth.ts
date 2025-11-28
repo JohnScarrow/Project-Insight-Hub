@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const routes: FastifyPluginAsync = async (server) => {
   // Login endpoint
@@ -28,8 +29,26 @@ const routes: FastifyPluginAsync = async (server) => {
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
     
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      reply.code(500)
+      return { error: 'JWT secret not configured' }
+    }
+
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        role: user.defaultRole,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      secret,
+      { expiresIn: '15m' }
+    )
+
     return {
       user: userWithoutPassword,
+      token,
+      expiresIn: 900,
       message: 'Login successful'
     }
   })
@@ -65,9 +84,27 @@ const routes: FastifyPluginAsync = async (server) => {
 
     const { password: _, ...userWithoutPassword } = user
 
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      reply.code(500)
+      return { error: 'JWT secret not configured' }
+    }
+
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        role: user.defaultRole,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      secret,
+      { expiresIn: '15m' }
+    )
+
     reply.code(201)
     return {
       user: userWithoutPassword,
+      token,
+      expiresIn: 900,
       message: 'User created successfully'
     }
   })
@@ -104,36 +141,57 @@ const routes: FastifyPluginAsync = async (server) => {
 
     const { password: _, ...userWithoutPassword } = user
 
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      reply.code(500)
+      return { error: 'JWT secret not configured' }
+    }
+
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        role: user.defaultRole,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      secret,
+      { expiresIn: '15m' }
+    )
+
     reply.code(201)
     return {
       user: userWithoutPassword,
+      token,
+      expiresIn: 900,
       message: 'Admin user created successfully'
     }
   })
 
   // Get current user (placeholder - would normally use JWT token)
   server.get('/me', async (request, reply) => {
-    // In a real app, you'd decode JWT from Authorization header.
-    // For the POC, allow the frontend to send `x-user-id` to identify the current user.
-    const headerUserId = (request.headers as any)['x-user-id'] as string | undefined
-
-    let user
-    if (headerUserId) {
-      user = await server.prisma.user.findUnique({ where: { id: headerUserId } })
+    const auth = (request.headers.authorization || '').trim()
+    if (!auth.startsWith('Bearer ')) {
+      reply.code(401)
+      return { error: 'Missing bearer token' }
     }
-
-    // Fallback to seeded admin user if header not provided or user not found
-    if (!user) {
-      user = await server.prisma.user.findUnique({ where: { email: 'jdeegan@gainclarity.com' } })
+    const token = auth.slice(7)
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      reply.code(500)
+      return { error: 'JWT secret not configured' }
     }
-
-    if (!user) {
-      reply.code(404)
-      return { error: 'User not found' }
+    try {
+      const decoded = jwt.verify(token, secret) as any
+      const user = await server.prisma.user.findUnique({ where: { id: decoded.sub } })
+      if (!user) {
+        reply.code(404)
+        return { error: 'User not found' }
+      }
+      const { password: _, ...userWithoutPassword } = user
+      return userWithoutPassword
+    } catch (e) {
+      reply.code(401)
+      return { error: 'Invalid or expired token' }
     }
-
-    const { password: _, ...userWithoutPassword } = user
-    return userWithoutPassword
   })
 }
 

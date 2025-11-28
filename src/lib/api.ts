@@ -85,15 +85,14 @@ async function fetchApi<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
   
-  // Get user ID from localStorage for RBAC
-  const userId = localStorage.getItem('userId')
+  const token = localStorage.getItem('authToken')
   
   try {
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(userId ? { 'x-user-id': userId } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options?.headers,
       },
     })
@@ -156,13 +155,13 @@ export const rbacApi = {
 // Authentication API
 export const authApi = {
   login: (email: string, password: string) =>
-    fetchApi<{ user: User; message: string }>('/auth/login', {
+    fetchApi<{ user: User; token: string; expiresIn: number; message: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
 
   signup: (email: string, password: string, name?: string) =>
-    fetchApi<{ user: User; message: string }>('/auth/signup', {
+    fetchApi<{ user: User; token: string; expiresIn: number; message: string }>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify({ email, password, name }),
     }),

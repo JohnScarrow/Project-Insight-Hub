@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { usersApi, authApi, User } from '@/lib/api';
+import { authApi, User } from '@/lib/api';
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  login: (user: User) => void;
+  login: (user: User, token?: string) => void;
   logout: () => void;
 }
 
@@ -15,29 +15,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedId = localStorage.getItem('userId');
-    if (!storedId) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
       setLoading(false);
       return;
     }
 
-    // Use the auth endpoint which reads `x-user-id` header for POC auth
+    // Use the auth endpoint which now reads bearer token
     authApi.getCurrentUser()
       .then((u) => setUser(u))
       .catch(() => {
-        localStorage.removeItem('userId');
+        localStorage.removeItem('authToken');
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const login = (u: User) => {
+  const login = (u: User, token?: string) => {
     setUser(u);
-    localStorage.setItem('userId', u.id);
+    if (token) {
+      localStorage.setItem('authToken', token);
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('userId');
+    localStorage.removeItem('authToken');
   };
 
   return (
